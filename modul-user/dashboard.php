@@ -8,6 +8,7 @@ if (!$_SESSION['id_user']) {
     </script>
     ';
 }
+
 if (isset($_POST['id_user'])) {
     $id = $_POST['id_user'];
     $q =  "DELETE FROM tbl_user WHERE id_user = '$id'";
@@ -15,6 +16,7 @@ if (isset($_POST['id_user'])) {
 }
 $q =  "SELECT * FROM tbl_user";
 $d = mysqli_query($connection, $q);
+
 if (isset($_POST['update'])) {
     $id = $_POST['id_update'];
     $nama_lengkap = $_POST['nama_lengkap'];
