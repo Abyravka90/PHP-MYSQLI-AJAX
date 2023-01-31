@@ -52,14 +52,13 @@ if (isset($_POST['update'])) {
         <div class="row">
 
             <?php include '../assets/menu.php';
-            // echo $_SERVER['SERVER_NAME'];
             ?>
 
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
                         <label>SISWA</label>
-                        Selamat Datang <?php echo $_SESSION['nama_lengkap'] ?>
+                        Selamat Datang <?php echo $_SESSION['username'] ?>
                         <br>
                         <button class="btn btn-success" data-toggle="modal" data-target="#modalAdd">+ tambah data</button>
                         <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="modalAddLabel" aria-hidden="true">
