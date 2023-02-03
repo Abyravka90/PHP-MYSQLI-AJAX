@@ -26,19 +26,26 @@ if (isset($_POST['addSiswa'])) {
         if (in_array($ekstensi, $ekstensi_diperbolehkan) === true) {
             //upload gambarnya
             move_uploaded_file($file_tmp, '../assets/images/siswa/' . $gambar);
+            $q = "INSERT INTO tbl_siswa(nama_lengkap, nis, alamat, gambar) VALUES (' $nama_lengkap  ', '  $nis  ', '  $alamat  ', '$gambar')";
+            $connection->query($q);
+        } else {
+            echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>file tidak sesuai<button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+            <span aria-hidden='true'>&times;</span>
+          </button></div>";
         }
     }
-
-
-    $q = "INSERT INTO tbl_siswa(nama_lengkap, nis, alamat, gambar) VALUES (' $nama_lengkap  ', '  $nis  ', '  $alamat  ', '$gambar')";
-    $connection->query($q);
 }
 //jika tombol hapus di klik
 if (isset($_POST['hapusSiswa'])) {
     $id_siswa = $_POST['id_siswa'];
     $gambar = "SELECT gambar from tbl_siswa WHERE id_siswa = '$id_siswa'";
-    $getGambar =
-        $q = "DELETE FROM tbl_siswa WHERE id_siswa = '$id_siswa'";
+    $getGambar = mysqli_query($connection, $gambar);
+    $result = mysqli_fetch_object($getGambar);
+    //menghapus file dari directory
+    if ($result->gambar != "") {
+        unlink('../assets/images/siswa/' . $result->gambar);
+    }
+    $q = "DELETE FROM tbl_siswa WHERE id_siswa = '$id_siswa'";
     $connection->query($q);
 }
 // jika tombol update di klik
@@ -47,8 +54,37 @@ if (isset($_POST['update'])) {
     $nama_lengkap = $_POST['nama_lengkap'];
     $nis = $_POST['nis'];
     $alamat = $_POST['alamat'];
-    $q = "UPDATE tbl_siswa SET nama_lengkap='$nama_lengkap', nis='$nis', alamat='$alamat' WHERE id_siswa = '$id_siswa'";
-    $connection->query($q);
+    // ekstensi diperbolehkan
+    $ekstensi_diperbolehkan = array('png', 'jpg');
+    $gambar = $_FILES['gambar']['name'];
+    $x = explode('.', $gambar);
+    $ekstensi = strtolower(end($x));
+    $file_tmp = $_FILES['gambar']['tmp_name'];
+    if (!empty($gambar)) {
+        if (in_array($ekstensi, $ekstensi_diperbolehkan) === true) {
+            $query_gambar = "SELECT gambar from tbl_siswa WHERE id_siswa = '$id_siswa'";
+            $getGambar = mysqli_query($connection, $query_gambar);
+            $result = mysqli_fetch_object($getGambar);
+            //menghapus file dari directory
+            if ($result->gambar != "") {
+                unlink('../assets/images/siswa/' . $result->gambar);
+            }
+            move_uploaded_file($file_tmp, '../assets/images/siswa/' . $gambar);
+            $q = "UPDATE tbl_siswa SET nama_lengkap='$nama_lengkap', nis='$nis', alamat='$alamat', gambar='$gambar' WHERE id_siswa = '$id_siswa'";
+            $connection->query($q);
+        } else {
+            echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>file tidak sesuai<button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+            <span aria-hidden='true'>&times;</span>
+          </button></div>";
+        }
+    } else {
+        $q = "UPDATE tbl_siswa SET nama_lengkap='$nama_lengkap', nis='$nis', alamat='$alamat' WHERE id_siswa = '$id_siswa'";
+        $connection->query($q);
+    }
+    // // hapus dulu file nya
+
+
+
 }
 ?>
 
@@ -98,7 +134,7 @@ if (isset($_POST['update'])) {
                                             </div>
                                             <div class="form-group">
                                                 <label>Foto</label>
-                                                <input type="file" placeholder="upload foto" name="gambar" id="" class="form-control">
+                                                <input type="file" name="gambar" id="" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <button name="addSiswa" type="submit" class="form-control btn btn-success">Simpan</button>
@@ -160,7 +196,7 @@ if (isset($_POST['update'])) {
                                                         <div class="modal-content">
                                                             <div class="modal-header">Edit Data</div>
                                                             <div class="modal-body">
-                                                                <form action="" method="post">
+                                                                <form action="" method="post" enctype="multipart/form-data">
                                                                     <input type="hidden" name="id_siswa" value="<?= $d->id_siswa ?>">
                                                                     <div class="form-group">
                                                                         <label>Nama Lengkap</label>
@@ -173,6 +209,10 @@ if (isset($_POST['update'])) {
                                                                     <div class="form-group">
                                                                         <label>Alamat</label>
                                                                         <input type="text" value="<?= $d->alamat ?>" placeholder="isikan alamat" name="alamat" id="" class="form-control">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Foto</label>
+                                                                        <input type="file" name="gambar" id="" class="form-control">
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <button name="update" type="submit" class="form-control btn btn-primary">Update</button>
